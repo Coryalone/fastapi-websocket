@@ -6,3 +6,4 @@ anyio==3.6.1
 typing-extensions==4.3.0
 sniffio==1.2.0
 idna==3.3
+wsproto==1.0.0
