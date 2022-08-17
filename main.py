@@ -18,18 +18,20 @@ html = """
         <ul id='messages'>
         </ul>
         <script>
-            var ws = new WebSocket("ws://localhost:8000/");            
+            var ws = new WebSocket("ws://localhost:8000/");
+            count = 0;            
             ws.onmessage = function(event) {                
                 var messages = document.getElementById('messages')
                 var message = document.createElement('li')
-                var content = document.createTextNode(event.data)                
+                var content = document.createTextNode(count + " " + JSON.parse(event.data)['mess'])
+                count += 1                
                 message.appendChild(content)
                 messages.appendChild(message)
             };
             function sendMessage(event) {
                 var input = document.getElementById("messageText")
-                ws.send(input.value)
-                input.value = ''
+                ws.send(JSON.stringify({"mess": input.value }))
+                input.value = ''                
                 event.preventDefault()
             }
         </script>
@@ -46,8 +48,6 @@ async def get():
 @app.websocket("/")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    counter = 0
     while True:
-        data = await websocket.receive_text()
-        counter += 1
-        await websocket.send_text(f"{counter} {data}")
+        data = await websocket.receive_json()
+        await websocket.send_json(data)
